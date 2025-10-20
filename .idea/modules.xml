@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/SOS/Sprint0/Average Calulatior Test/Average Calulatior Test.iml" filepath="$PROJECT_DIR$/SOS/Sprint0/Average Calulatior Test/Average Calulatior Test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SOS/SOS.iml" filepath="$PROJECT_DIR$/SOS/SOS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/SOS/Sprint0/SOSGUI/SOSGUI.iml" filepath="$PROJECT_DIR$/SOS/Sprint0/SOSGUI/SOSGUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/SOS_GAME-main.iml" filepath="$PROJECT_DIR$/.idea/SOS_GAME-main.iml" />
+    </modules>
+  </component>
+</project>
