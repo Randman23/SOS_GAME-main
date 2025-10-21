@@ -16,7 +16,7 @@ import java.util.List;
 
 public class SOSGUI extends Application {
 
-    private SOSGame game;
+    SOSGame game;
     private final double BOARD_SIZE = 400; // board pixel size
     private List<Text> letters = new ArrayList<>();
     private Pane boardPane;
@@ -25,7 +25,7 @@ public class SOSGUI extends Application {
     private char currentLetterP2 = 'S';
 
     private boolean isRecording = false;
-    private boolean isSimpleMode = true;
+    boolean isSimpleMode = true;
     private ComboBox<Integer> sizeSelector;
 
     private Label turnLabel; // NEW: Label to show current player's turn
