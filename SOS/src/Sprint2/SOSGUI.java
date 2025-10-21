@@ -17,8 +17,7 @@ import java.util.List;
 public class SOSGUI extends Application {
 
     private SOSGame game;
-    private final double boardWidth = 300;
-    private final double boardHeight = 300;
+    private final double BOARD_SIZE = 400; // board pixel size
     private List<Text> letters = new ArrayList<>();
     private Pane boardPane;
 
@@ -26,90 +25,81 @@ public class SOSGUI extends Application {
     private char currentLetterP2 = 'S';
 
     private boolean isRecording = false;
-    private boolean isSimpleMode = true; // true = Simple, false = General
+    private boolean isSimpleMode = true;
+    private ComboBox<Integer> sizeSelector;
 
-    private int boardSize = 5; // default
+    private Label turnLabel; // NEW: Label to show current player's turn
 
     @Override
     public void start(Stage stage) {
-        showStartupDialog(stage);
-    }
-
-    /**
-     * Shows a startup dialog to select board size and game mode.
-     */
-    private void showStartupDialog(Stage stage) {
-        Label sizeLabel = new Label("Select Board Size:");
-        Spinner<Integer> sizeSpinner = new Spinner<>(3, 10, 5);
-        sizeSpinner.setEditable(true);
-
-        CheckBox modeCheckBox = new CheckBox("Simple Mode");
-        modeCheckBox.setSelected(true);
-        modeCheckBox.setOnAction(e -> isSimpleMode = modeCheckBox.isSelected());
-
-        Button startButton = new Button("Start Game");
-        startButton.setOnAction(e -> {
-            boardSize = sizeSpinner.getValue();
-            isSimpleMode = modeCheckBox.isSelected();
-            stage.close();
-            initializeGame(stage);
-        });
-
-        VBox dialogLayout = new VBox(15, sizeLabel, sizeSpinner, modeCheckBox, startButton);
-        dialogLayout.setAlignment(Pos.CENTER);
-        dialogLayout.setStyle("-fx-padding: 30; -fx-background-color: lightgray;");
-
-        Scene scene = new Scene(dialogLayout, 250, 200);
-        stage.setTitle("SOS Game Options");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    /**
-     * Initializes the main game GUI based on selected options.
-     */
-    private void initializeGame(Stage stage) {
-        game = new SOSGame(boardSize);
+        game = new SOSGame(5);
 
         boardPane = new Pane();
-        boardPane.setPrefSize(boardWidth, boardHeight);
-        boardPane.setStyle("-fx-background-color: white; -fx-border-color: black;");
+        boardPane.setPrefSize(BOARD_SIZE, BOARD_SIZE);
+        boardPane.setStyle("-fx-background-color: white; -fx-border-color: black; -fx-border-width: 2;");
 
-        drawGrid();
+        // Attach mouse handler once (will continue to work after redraws)
+        boardPane.setOnMouseClicked(e -> handleBoardClick(e.getX(), e.getY()));
 
+        drawGrid(); // initial draw
+
+        // Create turn label
+        turnLabel = new Label("Player 1's Turn (S)");
+        turnLabel.setFont(Font.font(18));
+        turnLabel.setAlignment(Pos.CENTER);
+
+        // Player controls
         VBox leftControls = createPlayerControls("Player 1", true);
         VBox rightControls = createPlayerControls("Player 2", false);
 
+        // Bottom controls
         CheckBox recordGameCheckBox = new CheckBox("Record game");
         recordGameCheckBox.setOnAction(e -> isRecording = recordGameCheckBox.isSelected());
 
-        CheckBox gameModeCheckBox = new CheckBox(isSimpleMode ? "Simple Mode" : "General Mode");
-        gameModeCheckBox.setSelected(isSimpleMode);
+        CheckBox gameModeCheckBox = new CheckBox("Simple Mode");
+        gameModeCheckBox.setSelected(true);
         gameModeCheckBox.setOnAction(e -> {
             isSimpleMode = gameModeCheckBox.isSelected();
             gameModeCheckBox.setText(isSimpleMode ? "Simple Mode" : "General Mode");
+            resetBoard();
         });
+
+        // Size selection box
+        sizeSelector = new ComboBox<>();
+        for (int i = 3; i <= 10; i++) sizeSelector.getItems().add(i);
+        sizeSelector.setValue(5);
+        sizeSelector.setOnAction(e -> {
+            int newSize = sizeSelector.getValue();
+            game = new SOSGame(newSize);
+            resetBoard();
+        });
+
+        Label sizeLabel = new Label("Board size:");
+        HBox sizeBox = new HBox(5, sizeLabel, sizeSelector);
+        sizeBox.setAlignment(Pos.CENTER);
 
         Button resetButton = new Button("Reset");
         resetButton.setOnAction(e -> resetBoard());
 
-        HBox bottomControls = new HBox(15, recordGameCheckBox, gameModeCheckBox, resetButton);
+        HBox bottomControls = new HBox(20, recordGameCheckBox, gameModeCheckBox, sizeBox, resetButton);
         bottomControls.setAlignment(Pos.CENTER);
         bottomControls.setStyle("-fx-padding: 10;");
-
-        boardPane.setOnMouseClicked(e -> handleBoardClick(e.getX(), e.getY()));
 
         HBox centerLayout = new HBox(40, leftControls, boardPane, rightControls);
         centerLayout.setAlignment(Pos.CENTER);
 
         BorderPane root = new BorderPane();
+        root.setTop(turnLabel); // Add turn label at the top
+        BorderPane.setAlignment(turnLabel, Pos.CENTER);
         root.setCenter(centerLayout);
         root.setBottom(bottomControls);
 
-        Scene scene = new Scene(root, 750, 400);
-        stage.setTitle("SOS Game - " + boardSize + "x" + boardSize);
+        Scene scene = new Scene(root, 850, 500);
+        stage.setTitle("SOS Game");
         stage.setScene(scene);
         stage.show();
+
+        updateTurnLabel(); // Initialize turn label text
     }
 
     private VBox createPlayerControls(String name, boolean isPlayerOne) {
@@ -124,63 +114,99 @@ public class SOSGUI extends Application {
         sButton.setSelected(true);
 
         if (isPlayerOne) {
-            sButton.setOnAction(e -> currentLetterP1 = 'S');
-            oButton.setOnAction(e -> currentLetterP1 = 'O');
+            sButton.selectedProperty().addListener((obs, was, isNow) -> {
+                if (isNow) currentLetterP1 = 'S';
+                updateTurnLabel();
+            });
+            oButton.selectedProperty().addListener((obs, was, isNow) -> {
+                if (isNow) currentLetterP1 = 'O';
+                updateTurnLabel();
+            });
         } else {
-            sButton.setOnAction(e -> currentLetterP2 = 'S');
-            oButton.setOnAction(e -> currentLetterP2 = 'O');
+            sButton.selectedProperty().addListener((obs, was, isNow) -> {
+                if (isNow) currentLetterP2 = 'S';
+                updateTurnLabel();
+            });
+            oButton.selectedProperty().addListener((obs, was, isNow) -> {
+                if (isNow) currentLetterP2 = 'O';
+                updateTurnLabel();
+            });
         }
 
         VBox vbox = new VBox(10, label, sButton, oButton);
         vbox.setAlignment(Pos.TOP_CENTER);
-        vbox.setStyle(isPlayerOne ? "-fx-background-color: red; -fx-padding: 20;" :
-                "-fx-background-color: blue; -fx-padding: 20;");
+        vbox.setStyle(isPlayerOne ? "-fx-background-color: #ffdddd; -fx-padding: 20;" :
+                "-fx-background-color: #ddeeff; -fx-padding: 20;");
         return vbox;
     }
 
     private void handleBoardClick(double x, double y) {
         int size = game.getSize();
-        double cellWidth = boardWidth / size;
-        double cellHeight = boardHeight / size;
+        double cellWidth = BOARD_SIZE / size;
+        double cellHeight = BOARD_SIZE / size;
 
         int col = (int) (x / cellWidth);
         int row = (int) (y / cellHeight);
+
+        if (col < 0 || col >= size || row < 0 || row >= size) return;
 
         char letter = game.getCurrentPlayerLetter(currentLetterP1, currentLetterP2);
         if (game.placeLetter(row, col, letter)) {
             double centerX = col * cellWidth + cellWidth / 2;
             double centerY = row * cellHeight + cellHeight / 2;
 
-            Text t = new Text(centerX - 7, centerY + 7, String.valueOf(letter));
-            t.setFont(Font.font(24));
+            double fontSize = Math.max(12, Math.min(36, cellWidth * 0.5));
+            Text t = new Text(centerX - fontSize * 0.3, centerY + fontSize * 0.3, String.valueOf(letter));
+            t.setFont(Font.font(fontSize));
             t.setFill(Color.BLACK);
             letters.add(t);
             boardPane.getChildren().add(t);
 
-            if (isRecording) {
+            if (isRecording)
                 System.out.println("Placed " + letter + " at (" + row + "," + col + ")");
-            }
+
+            // Update to next player's turn
+            game.switchTurn();
+            updateTurnLabel();
+        } else {
+            System.out.println("Cannot place at (" + row + "," + col + ") - occupied or invalid.");
         }
     }
 
     private void drawGrid() {
-        double rowHeight = boardHeight / game.getSize();
-        double colWidth = boardWidth / game.getSize();
+        boardPane.getChildren().clear();
+        double rowHeight = BOARD_SIZE / game.getSize();
+        double colWidth = BOARD_SIZE / game.getSize();
 
-        for (int i = 1; i < game.getSize(); i++) {
-            Line h = new Line(0, i * rowHeight, boardWidth, i * rowHeight);
-            h.setStroke(Color.LIGHTGRAY);
-            Line v = new Line(i * colWidth, 0, i * colWidth, boardHeight);
-            v.setStroke(Color.LIGHTGRAY);
+        for (int i = 0; i <= game.getSize(); i++) {
+            double y = i * rowHeight;
+            double x = i * colWidth;
+
+            Line h = new Line(0, y, BOARD_SIZE, y);
+            Line v = new Line(x, 0, x, BOARD_SIZE);
+
+            h.setStroke(Color.GRAY);
+            v.setStroke(Color.GRAY);
+            h.setStrokeWidth(1);
+            v.setStrokeWidth(1);
+
             boardPane.getChildren().addAll(h, v);
         }
     }
 
     private void resetBoard() {
         game.resetGame();
-        boardPane.getChildren().removeAll(letters);
         letters.clear();
-        System.out.println("Board reset. Game Mode: " + (isSimpleMode ? "Simple" : "General"));
+        drawGrid();
+        updateTurnLabel();
+        System.out.println("Board reset. Mode: " + (isSimpleMode ? "Simple" : "General")
+                + ", Size: " + game.getSize());
+    }
+
+    private void updateTurnLabel() {
+        String player = game.isPlayerOneTurn() ? "Player 1" : "Player 2";
+        char letter = game.isPlayerOneTurn() ? currentLetterP1 : currentLetterP2;
+        turnLabel.setText(player + "'s Turn (" + letter + ")");
     }
 
     public static void main(String[] args) {

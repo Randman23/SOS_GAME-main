@@ -45,4 +45,7 @@ public class SOSGame {
                 board[i][j] = '\0';
         playerOneTurn = true;
     }
+
+    public void switchTurn() {
+    }
 }
