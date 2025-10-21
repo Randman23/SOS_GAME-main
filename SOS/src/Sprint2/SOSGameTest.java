@@ -5,10 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Unit tests for SOSGame class.
- * These tests verify core functionality without GUI involvement.
- */
+
 public class SOSGameTest {
 
     private SOSGame game;
