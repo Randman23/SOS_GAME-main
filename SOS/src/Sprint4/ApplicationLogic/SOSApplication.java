@@ -1,10 +1,11 @@
-package Sprint3.ApplicationLogic;
+package Sprint4.ApplicationLogic;
 
+import Sprint4.GUILogic.GameView;
+import Sprint4.GameLogic.Game;
+import Sprint4.GameLogic.SimpleGame;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import Sprint3.GameLogic.*;
-import Sprint3.GUILogic.*;
 /**
  * Main application entry point.
  */

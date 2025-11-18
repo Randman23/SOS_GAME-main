@@ -1,6 +1,7 @@
-package Sprint3.GameLogic;
+package Sprint4.GameLogic;
 
 import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,27 +99,6 @@ public abstract class Game {
 
     public boolean isGameFinished() {
         return gameFinished;
-    }
-
-    // Helper methods for testing and compatibility
-    public boolean isBluePlayerTurn() {
-        return currentPlayer == bluePlayer;
-    }
-
-    public int getBlueScore() {
-        return bluePlayer.getScore();
-    }
-
-    public int getRedScore() {
-        return redPlayer.getScore();
-    }
-
-    public int getBoardSize() {
-        return board.getSize();
-    }
-
-    public char[][] getGrid() {
-        return board.toCharArray();
     }
 
     // Abstract methods for game variants

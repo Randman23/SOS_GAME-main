@@ -1,6 +1,6 @@
-package Sprint3.GUILogic;
+package Sprint4.GUILogic;
 
-import Sprint3.GameLogic.Player;
+import Sprint4.GameLogic.Player;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
