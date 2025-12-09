@@ -1,0 +1,13 @@
+GAME_MODE=Simple
+BOARD_SIZE=5
+BLUE_PLAYER=Human
+RED_PLAYER=Computer
+MOVES=6
+
+MoveNumber,Row,Col,Letter,PlayerName
+1,0,0,S,Blue
+2,1,3,S,Red
+3,4,0,S,Blue
+4,2,3,S,Red
+5,4,1,S,Blue
+6,3,2,O,Red

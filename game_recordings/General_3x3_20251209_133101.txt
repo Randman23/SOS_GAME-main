@@ -1,0 +1,16 @@
+GAME_MODE=General
+BOARD_SIZE=3
+BLUE_PLAYER=Human
+RED_PLAYER=Human
+MOVES=9
+
+MoveNumber,Row,Col,Letter,PlayerName
+1,0,0,S,Blue
+2,1,1,O,Red
+3,2,2,S,Blue
+4,0,2,S,Blue
+5,1,2,O,Red
+6,0,1,O,Red
+7,2,0,S,Red
+8,2,1,O,Red
+9,1,0,O,Red
